@@ -1,36 +1,167 @@
-Docker Volumes
-Problem Statement
-It is a very common requirement to persist the data in a Docker container beyond the lifetime of the container. However, the file system of a Docker container is deleted/removed when the container dies.
+<h2>Docker Volumes 📦</h2>
 
-Solution
-There are 2 different ways how docker solves this problem.
+<h3>Problem Statement</h3>
 
-Volumes
-Bind Directory on a host as a Mount
-Volumes
-Volumes aims to solve the same problem by providing a way to store data on the host file system, separate from the container's file system, so that the data can persist even if the container is deleted and recreated.
+<p>
+It is a very common requirement to persist data in a Docker container
+beyond the lifetime of the container.
+</p>
 
-image
+<p>
+However, the file system of a Docker container is deleted when the
+container stops or is removed.
+</p>
 
-Volumes can be created and managed using the docker volume command. You can create a new volume using the following command:
+<hr>
 
-docker volume create <volume_name>
-Once a volume is created, you can mount it to a container using the -v or --mount option when running a docker run command.
+<h3>Solution</h3>
 
-For example:
+<p>
+Docker provides two main ways to persist data:
+</p>
 
-docker run -it -v <volume_name>:/data <image_name> /bin/bash
-This command will mount the volume <volume_name> to the /data directory in the container. Any data written to the /data directory inside the container will be persisted in the volume on the host file system.
+<ul>
+  <li><strong>Volumes</strong></li>
+  <li><strong>Bind Mounts (Bind Directory on Host)</strong></li>
+</ul>
 
-Bind Directory on a host as a Mount
-Bind mounts also aims to solve the same problem but in a complete different way.
+<hr>
 
-Using this way, user can mount a directory from the host file system into a container. Bind mounts have the same behavior as volumes, but are specified using a host path instead of a volume name.
+<h2>1️⃣ Volumes</h2>
 
-For example,
+<p>
+Volumes provide a way to store data on the host file system,
+separate from the container’s internal file system.
+This ensures data persists even if the container is deleted and recreated.
+</p>
 
-docker run -it -v <host_path>:<container_path> <image_name> /bin/bash
-Key Differences between Volumes and Bind Directory on a host as a Mount
-Volumes are managed, created, mounted and deleted using the Docker API. However, Volumes are more flexible than bind mounts, as they can be managed and backed up separately from the host file system, and can be moved between containers and hosts.
+<h3>Create a Volume</h3>
 
-In a nutshell, Bind Directory on a host as a Mount are appropriate for simple use cases where you need to mount a directory from the host file system into a container, while volumes are better suited for more complex use cases where you need more control over the data being persisted in the container.
+<pre><code>docker volume create &lt;volume_name&gt;
+</code></pre>
+
+<h3>List Volumes</h3>
+
+<pre><code>docker volume ls
+</code></pre>
+
+<h3>Mount Volume to a Container</h3>
+
+<pre><code>docker run -it -v &lt;volume_name&gt;:/data &lt;image_name&gt; /bin/bash
+</code></pre>
+
+<p>
+This mounts the volume <code>&lt;volume_name&gt;</code> to
+<code>/data</code> inside the container.
+</p>
+
+<p>
+Any data written to <code>/data</code> inside the container
+will persist on the host system.
+</p>
+
+<h3>Inspect Volume</h3>
+
+<pre><code>docker volume inspect &lt;volume_name&gt;
+</code></pre>
+
+<h3>Remove Volume</h3>
+
+<pre><code>docker volume rm &lt;volume_name&gt;
+</code></pre>
+
+<hr>
+
+<h2>2️⃣ Bind Mounts (Bind Directory on Host)</h2>
+
+<p>
+Bind mounts allow you to mount a specific directory from the host
+machine into a container.
+</p>
+
+<p>
+Unlike volumes, bind mounts directly reference a host path.
+</p>
+
+<h3>Mount Host Directory into Container</h3>
+
+<pre><code>docker run -it -v &lt;host_path&gt;:&lt;container_path&gt; &lt;image_name&gt; /bin/bash
+</code></pre>
+
+<p>
+Example:
+</p>
+
+<pre><code>docker run -it -v /home/ubuntu/data:/app/data ubuntu /bin/bash
+</code></pre>
+
+<p>
+Here, the directory <code>/home/ubuntu/data</code> on the host
+is mounted to <code>/app/data</code> inside the container.
+</p>
+
+<hr>
+
+<h2>Key Differences: Volumes vs Bind Mounts</h2>
+
+<table border="1" cellpadding="8">
+<tr>
+<th>Feature</th>
+<th>Volumes</th>
+<th>Bind Mounts</th>
+</tr>
+<tr>
+<td>Managed by Docker</td>
+<td>Yes</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Location</td>
+<td>Docker-managed directory</td>
+<td>Specific host path</td>
+</tr>
+<tr>
+<td>Portability</td>
+<td>More portable</td>
+<td>Host dependent</td>
+</tr>
+<tr>
+<td>Backup & Migration</td>
+<td>Easier</td>
+<td>Manual</td>
+</tr>
+<tr>
+<td>Best For</td>
+<td>Production & complex setups</td>
+<td>Development & simple use cases</td>
+</tr>
+</table>
+
+<hr>
+
+<h2>When to Use What?</h2>
+
+<ul>
+  <li>
+    ✅ <strong>Use Volumes</strong> for production applications,
+    databases, and persistent application data.
+  </li>
+  <li>
+    ✅ <strong>Use Bind Mounts</strong> for development environments
+    when you need to sync local code into a container.
+  </li>
+</ul>
+
+<hr>
+
+<h2>Conclusion</h2>
+
+<p>
+Docker volumes and bind mounts solve the same core problem:
+<strong>data persistence</strong>.
+</p>
+
+<p>
+Volumes are generally preferred in production environments,
+while bind mounts are convenient for development workflows.
+</p>
